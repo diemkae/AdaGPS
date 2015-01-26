@@ -1,0 +1,71 @@
+The Adafruit_GPS Library was Originally written to run with Arduino core,
+this has been Ported to run with Raspberry Pi Linux (raspbian wheezy)
+by David Knight (diemkae@gmail.com) and tested with SKM53 GPS receiver
+running at 9600 baud.  20150125  - DMK
+
+To run parsing demo to work using the Pi's UART serial port, the default
+console login (getty) on /dev/ttyAMA0 must be disabled:
+
+    1 - remove the ttyAMA0 console from /boot/cmdline.txt, e.g. the
+    line:
+
+          dwc_otg.lpm_enable=0 console=ttyAMA0,115200 console=tty1 \
+		        root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait
+		becomes:
+
+          dwc_otg.lpm_enable=0 console=tty1 root=/dev/mmcblk0p2 \
+		        rootfstype=ext4 elevator=deadline rootwait
+
+   2 - /etc/inittab needs the respawn for the getty on that device to be
+   commented, e.g.:
+
+		   T0:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100
+
+		becomes:
+
+		   #T0:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100
+    
+	3 - because /dev/ttyAMA0 and any /dev/ttyUSBx devices will have ownership
+	and permissions like:
+	
+         crw-rw---T 1 root dialout 204, 64 Jan 26 10:46 /dev/ttyAMA0
+	
+	the userid that is going to run the parsing demo ("dmk", in my case)
+	needs to be added to the "dialout" group by editing /etc/group:
+
+		 dialout:x:20:pi,dmk
+
+	In the 2012-12-24 raspbian/wheezy distro, the userid "pi" is already
+	in the dialout group.
+	
+	4- a reboot is necessary for these changes to take effect.
+
+	To connect the SKM53 GPS receiver to the Pi UART serial port:
+	
+	            SKM53  Pi
+				-----  --
+			     RX    TX
+				 TX    RX
+				 Vcc   5v
+				 GND   GND
+	
+	Note that, while the SKM53 has a Vcc of 5v +|-
+	5% (it won't run on 3.3v), the SKM53 datasheet
+	(http://www.nooelec.com/files/SKM53_Datasheet.pdf) states that
+	"The serial connections are at 2.85V LVTTL logic levels", so
+	it's safe to connect Rx/Tx to the Pi (where connecting 5v to
+	those pins would be "bad"!
+
+**  TBD - To run the parsing demo using a /dev/ttyUSBx device, only steps
+3 and 4, above, are necessary.  Using a USB/serial adapter, connect the
+SKM53 as follows, using an RS232 breakout (board/cable) if desired:
+
+				    DB9
+                 breakout    DB9
+	     SKM53    Signal     PIN
+		 -----    ------     ---
+		   RX       TX        3
+		   TX	    RX        2
+		   Vcc      5v        TBD {7 (RTS) or 4 (DTR)}
+		   GND      GND       5
+
