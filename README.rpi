@@ -56,16 +56,14 @@ console login (getty) on /dev/ttyAMA0 must be disabled:
 	it's safe to connect Rx/Tx to the Pi (where connecting 5v to
 	those pins would be "bad"!
 
-**  TBD - To run the parsing demo using a /dev/ttyUSBx device, only steps
-3 and 4, above, are necessary.  Using a USB/serial adapter, connect the
-SKM53 as follows, using an RS232 breakout (board/cable) if desired:
+**  To run the parsing demo using a /dev/ttyUSBx device, only steps
+3 and 4, above, are necessary.  Using a USB/TTL/5v (serial) adapter,
+connect the SKM53 as follows:
 
-				    DB9
-                 breakout    DB9
-	     SKM53    Signal     PIN
-		 -----    ------     ---
-		   RX       TX        3
-		   TX	    RX        2
-		   Vcc      5v        TBD {7 (RTS) or 4 (DTR)}
-		   GND      GND       5
-
+	            SKM53  USB/ttl-5v
+				-----  ----------
+			     RX    TX
+				 TX    RX
+				 Vcc   Vcc/Vdd
+				 GND   GND
+	
