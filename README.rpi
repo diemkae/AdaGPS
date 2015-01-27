@@ -57,13 +57,17 @@ console login (getty) on /dev/ttyAMA0 must be disabled:
 	those pins would be "bad"!
 
 **  To run the parsing demo using a /dev/ttyUSBx device, only steps
-3 and 4, above, are necessary.  Using a USB/TTL/5v (serial) adapter,
-connect the SKM53 as follows:
+3 and 4, above, are necessary.  This was tested using a Virtuabotix
+FTDI USB to Serial adapter** with its viltage switch set to 5v and
+connected to the SKM53 as follows:
 
-	            SKM53  USB/ttl-5v
+				       FTDI USB/
+	            SKM53  ttl-5v
 				-----  ----------
 			     RX    TX
 				 TX    RX
 				 Vcc   Vcc/Vdd
 				 GND   GND
 	
+** see:
+  www.virtuabotix.com/product/versalino-ftdi-usb-serial-programmer-no-cable/
