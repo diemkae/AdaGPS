@@ -214,7 +214,7 @@ Adafruit_GPS::parse (char *nmea)
   else
     {
       if (debug)
-        printf ("bad timestamp (GPStime:%d < highTime:%d)\n", GPStime,
+        fprintf (stderr,"bad timestamp (GPStime:%d < highTime:%d)\n", GPStime,
             highTime);
       rc = false;        // ignore this sentence
     }
@@ -252,7 +252,7 @@ Adafruit_GPS::read (void)
     }
 
       if (debug)
-    printf ("--\n%s\n", lastline);
+    	fprintf (stderr,"--\n%s\n", lastline);
 
       lineidx = 0;
       recvdflag = true;
@@ -298,14 +298,14 @@ Adafruit_GPS::begin (char *device, uint16_t baud)
   //  GPS.begin("/dev/ttyAMA0", 9600);
   //
   int rc = 0;
-  char cmd[50];
+  char cmd[80];
 
   //  Using the stty cmd here, to set the baud rate,
   //  is kind of a cheat, but it works ;-)
   sprintf(cmd,"stty -F %s %d", device, baud);
   rc = system(cmd);
   if ( rc != 0 ) {
-     printf("GPS.begin [%s] failed\n", cmd);
+     fprintf(stderr, "GPS.begin [%s] failed\n", cmd);
 	 perror("  errno - ");
 	 exit(1);
   }
@@ -322,8 +322,8 @@ void
 Adafruit_GPS::sendCommand (char *str)
 {
   int rc = 0;
-  printf ("Adafruit_GPS.sendCommand:[%s]\n", str);
-  rc = fprintf (fp, "%s\n", str);
+  if(debug)fprintf (stderr,"Adafruit_GPS.sendCommand:[%s]\n", str);
+  rc = fprintf (fp, "%s\n", str); // write to serial/GPS device
   if (rc < 0)
     {
       perror ("Adafruit_GPS.sendCommand");
@@ -481,4 +481,4 @@ Adafruit_GPS::wakeup (void)
     }
 }
 
-#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/Adafruit_GPS.cpp,v 1.5 2015/01/26 01:41:22 dmk%raspi Exp $"
+#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/Adafruit_GPS.cpp,v 1.6 2015/01/27 16:02:54 dmk%raspi Exp $"

@@ -132,13 +132,14 @@ int main (int argc, char **argv)
 
   // debug: 1/enable, 0/disable debug output here 
   //         and in the Adafruit_GPS methods
-  debug = 0;
 
+  debug = 0;
   setup ();
+
   for (;;)
     {		
       loop ();
     }
 }
 
-#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/parsing.c,v 1.5 2015/01/26 00:51:56 dmk%raspi Exp $"
+#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/parsing.c,v 1.6 2015/01/27 16:03:02 dmk%raspi Exp $"
