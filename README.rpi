@@ -3,7 +3,33 @@ this has been Ported to run with Raspberry Pi Linux (raspbian wheezy)
 by David Knight (diemkae@gmail.com) and tested with SKM53 GPS receiver
 running at 9600 baud.  20150125  - DMK
 
-To run parsing demo to work using the Pi's UART serial port, the default
+Notable chages:
+
+parsing.c:
+
+  1 - Usage: parsing [-d] [/dev/ttyXXXX]
+         -d enables debug output
+         /dev/ttyXXXX specifies alternate serial device,
+             default is /dev/ttyAMA0.
+
+Adafruit_GPS.cpp:
+
+  1 - fix bug(?) in GPS.parse() to handle NMEA sentences received
+      without a NEWLINE after the checksum (frequent with SMK53
+	  receover, at least)
+
+  2 - expanded diagnostics when debug is enabled (-d)
+
+It should be no surprise to Linux enthusiasts that this library
+and example compile and run, without change, on other Linux distros,
+e.g. Ubuntu 14.04LTS, Linux Mint 17, and even a couple old Fedora Core
+16 systems which, curiously, did not receive ANY nmea sentences with
+bad timestamps or without a trailing NEWLINE character from the SMK53
+receiver.
+
+# ------------------------------------------------------------------------
+
+To run the parsing demo using the Pi's UART serial port, the default
 console login (getty) on /dev/ttyAMA0 must be disabled:
 
     1 - remove the ttyAMA0 console from /boot/cmdline.txt, e.g. the
@@ -56,10 +82,17 @@ console login (getty) on /dev/ttyAMA0 must be disabled:
 	it's safe to connect Rx/Tx to the Pi (where connecting 5v to
 	those pins would be "bad"!
 
-**  To run the parsing demo using a /dev/ttyUSBx device, only steps
-3 and 4, above, are necessary.  This was tested using a Virtuabotix
-FTDI USB to Serial adapter** with its viltage switch set to 5v and
-connected to the SKM53 as follows:
+# -------------------------------------------------------------------
+
+To run the parsing demo using a /dev/ttyUSBx device, only steps
+3 and 4, above, are necessary.  
+
+Use the command line arguments to specify the proper device:
+
+   parsing /dev/ttyUSBx
+
+This was tested using a Virtuabotix FTDI USB to Serial adapter** with
+its voltage switch set to 5v and connected to the SKM53 as follows:
 
 				       FTDI USB/
 	            SKM53  ttl-5v
@@ -71,3 +104,6 @@ connected to the SKM53 as follows:
 	
 ** see:
   www.virtuabotix.com/product/versalino-ftdi-usb-serial-programmer-no-cable/
+
+
+#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/README.rpi,v 1.6 2015/01/28 14:53:00 dmk%raspi Exp $"

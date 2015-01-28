@@ -28,10 +28,20 @@ Ported to run with Raspberry Pi Linux (raspbian wheezy) by David Knight
 //#include <Adafruit_GPS.h>
 #include "Adafruit_GPS.h"
 
-extern int debug;  // lets parsing.c control debug output
+extern int debug;  // parsing.c controls debug output
+char device[20] = "/dev/ttyAMA0";  // default device
 
 // on the Pi, we use fopen() and fgetc() to read the GPS "messages"
 Adafruit_GPS GPS (NULL);
+
+static void
+usage(void) {
+  printf("Usage: parsing [-d] [/dev/ttyXXXX]\n");
+  printf("     -d enables debug output\n");
+  printf("     /dev/ttyXXXX specifies alternate serial device,\n");
+  printf("         default is /dev/ttyAMA0.\n");
+  exit(0);
+}
 
 void
 setup ()
@@ -40,7 +50,7 @@ setup ()
 
   // 9600 NMEA is the default baud rate for Adafruit MTK GPS's- some use 4800
 
-  GPS.begin ((char *)"/dev/ttyAMA0",9600);
+  GPS.begin ((char *)device,9600);
 
   // uncomment this line to turn on RMC (recommended minimum) and GGA (fix data) including altitude
   GPS.sendCommand ((char *) PMTK_SET_NMEA_OUTPUT_RMCGGA);
@@ -88,8 +98,8 @@ loop ()				// run over and over again
       else
 	{
 	  badParse++;
-	  if(debug)printf("GPS.parse ERROR\n");
-	  return;  // ignore bad sentence, wait for another
+	  if(debug)fprintf(stderr, "GPS.parse ERROR\n");
+	  //return;  // ignore bad sentence, wait for another
 	}
     //  GPS.lastNMEA parse OK, see if it's time to print
     if (now >= lastPrint + 2)
@@ -130,10 +140,25 @@ int main (int argc, char **argv)
 	exit(1);
   }
 
-  // debug: 1/enable, 0/disable debug output here 
-  //         and in the Adafruit_GPS methods
+  debug = 0;  // default
 
-  debug = 0;
+  //  process cmdline args
+  if ( argc >= 2 ) {
+    int n = 1;
+    //  debug: 1/enable, 0/disable debug output here 
+    //         and in the Adafruit_GPS methods
+	if ( strcmp(argv[n], "-d") == 0 ) {
+  		debug = 1;
+		if (argc > n + 1 ) n++;
+	}
+	if (strncmp(argv[n], "/dev/tty", 8) == 0 ) {
+  		strncpy(device, argv[n], sizeof(device));
+		if (argc > n + 1 ) n++;
+	}
+	if (strcmp(argv[n], "-h") == 0 ) {
+	  usage();
+	}
+  }
   setup ();
 
   for (;;)
@@ -142,4 +167,4 @@ int main (int argc, char **argv)
     }
 }
 
-#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/parsing.c,v 1.6 2015/01/27 16:03:02 dmk%raspi Exp $"
+#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/parsing.c,v 1.9 2015/01/28 13:55:57 dmk%raspi Exp $"

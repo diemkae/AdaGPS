@@ -35,11 +35,35 @@ volatile char *currentline;
 volatile char *lastline;
 volatile boolean recvdflag;
 volatile boolean inStandbyMode;
+
+//
+//  chkHighTime - returns 0 if timestamp >= latest timestamp
+//                        1 if timestamp is "older"
+//
+uint32_t highTime = 0;        // highest parsed timestamp value
+static int chkHighTime(int newTime) {
+  int rc = 0;
+  // check for invalid timestamp in current sentence
+  //
+  if (newTime >= highTime)
+    {
+      highTime = newTime;
+    }
+  else
+    {
+      if (debug)
+        fprintf (stderr,"bad timestamp (GPStime:%d < highTime:%d)\n", newTime,
+            highTime);
+      rc = 1;        // bad timestamp
+    }
+
+  return rc;
+}
+
 //
 // GPS.parse() - returns true for good parses, false for NG
 //
 
-uint32_t highTime = 0;        // highes timestamp value received
 uint32_t GPStime = 0;;
 
 boolean
@@ -47,6 +71,14 @@ Adafruit_GPS::parse (char *nmea)
 {
   boolean rc = false;
   // do checksum check
+
+  // nmea[] may or may not have a newline after the checksum
+  // This occurs frequently with SMK53 GPS receivers
+  //    dmk 20150128
+  if (nmea[strlen (nmea) - 3] == '*') {
+	strcat(nmea,"\n"); // fake having received a NL after checksum
+	if (debug) fprintf(stderr,"NL added after checksum\n");
+  }
 
   // first look if we even have one
   if (nmea[strlen (nmea) - 4] == '*')
@@ -62,9 +94,13 @@ Adafruit_GPS::parse (char *nmea)
       if (sum != 0)
       {
         // bad checksum :(
+		if(debug)fprintf(stderr,"bad checksum\n");
         return false;
       }
-    }
+    } else {
+  		char star = nmea[strlen (nmea) - 4];
+	    if(debug)fprintf(stderr,"star=%c not an NMEA sentence\n",star);
+	}
 
   // look for response to PMTK_Q_RELEASE ("$PMTK705...")
   if (strstr (nmea, "$PMTK705"))
@@ -84,6 +120,7 @@ Adafruit_GPS::parse (char *nmea)
       p = strchr (p, ',') + 1;
       float timef = atof (p);
       GPStime = timef;
+	  if (chkHighTime(GPStime)) return false;
       hour = GPStime / 10000;
       minute = (GPStime % 10000) / 100;
       seconds = (GPStime % 100);
@@ -101,8 +138,10 @@ Adafruit_GPS::parse (char *nmea)
         lat = 'S';
       else if (p[0] == ',')
         lat = 0;
-      else
+      else {
+		fprintf(stderr,"GGA lat [%c] != 'N' | 'S'\n", p[0]);
         return false;
+	  }
 
       // parse out longitude
       p = strchr (p, ',') + 1;
@@ -115,8 +154,10 @@ Adafruit_GPS::parse (char *nmea)
         lon = 'E';
       else if (p[0] == ',')
         lon = 0;
-      else
+      else {
+		fprintf(stderr,"GGA lon [%c] != 'E' | 'W'\n", p[0]);
         return false;
+	  }
 
       p = strchr (p, ',') + 1;
       fixquality = atoi (p);
@@ -144,6 +185,7 @@ Adafruit_GPS::parse (char *nmea)
       p = strchr (p, ',') + 1;
       float timef = atof (p);
       GPStime = timef;
+	  if (chkHighTime(GPStime)) return false;
       hour = GPStime / 10000;
       minute = (GPStime % 10000) / 100;
       seconds = (GPStime % 100);
@@ -156,8 +198,10 @@ Adafruit_GPS::parse (char *nmea)
         fix = true;
       else if (p[0] == 'V')
         fix = false;
-      else
+      else {
+		fprintf(stderr,"RMC fix [%c] != 'A' | 'V'\n", p[0]);
         return false;
+	  }
 
       // parse out latitude
       p = strchr (p, ',') + 1;
@@ -170,8 +214,10 @@ Adafruit_GPS::parse (char *nmea)
         lat = 'S';
       else if (p[0] == ',')
         lat = 0;
-      else
+      else {
+		fprintf(stderr,"RMC lat [%c] != 'N' | 'S'\n", p[0]);
         return false;
+	  }
 
       // parse out longitude
       p = strchr (p, ',') + 1;
@@ -184,8 +230,10 @@ Adafruit_GPS::parse (char *nmea)
         lon = 'E';
       else if (p[0] == ',')
         lon = 0;
-      else
+      else {
+		fprintf(stderr,"RMC lon [%c] != 'E' | 'W'\n", p[0]);
         return false;
+	  }
 
       // speed
       p = strchr (p, ',') + 1;
@@ -204,22 +252,6 @@ Adafruit_GPS::parse (char *nmea)
       rc = true;
     }
   // end of parsing - we don't parse the other sentences, yet!
-
-  // now check for invalid timestamp in current sentence
-  //
-  if (GPStime >= highTime)
-    {
-      highTime = GPStime;
-    }
-  else
-    {
-      if (debug)
-        fprintf (stderr,"bad timestamp (GPStime:%d < highTime:%d)\n", GPStime,
-            highTime);
-      rc = false;        // ignore this sentence
-    }
-
-  return rc;
 }
 
 char
@@ -306,7 +338,6 @@ Adafruit_GPS::begin (char *device, uint16_t baud)
   rc = system(cmd);
   if ( rc != 0 ) {
      fprintf(stderr, "GPS.begin [%s] failed\n", cmd);
-	 perror("  errno - ");
 	 exit(1);
   }
 
@@ -481,4 +512,4 @@ Adafruit_GPS::wakeup (void)
     }
 }
 
-#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/Adafruit_GPS.cpp,v 1.6 2015/01/27 16:02:54 dmk%raspi Exp $"
+#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/Adafruit_GPS.cpp,v 1.9 2015/01/28 13:49:28 dmk%leno Exp $"
