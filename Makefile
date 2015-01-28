@@ -1,4 +1,4 @@
-ALL = parsing Adafruit_GPS.o
+ALL = parsing Adafruit_GPS.o hdeps
 
 all: parsing
 
@@ -12,4 +12,4 @@ parsing:	parsing.c Adafruit_GPS.o
 
 clean:	
 	/bin/rm -f $(ALL)
-#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/Makefile,v 1.3 2015/01/24 19:57:31 dmk%raspi Exp $"
+#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/Makefile,v 1.4 2015/01/27 16:10:15 dmk%raspi Exp $"
