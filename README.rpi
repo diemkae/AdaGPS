@@ -1,3 +1,48 @@
+20150129 - DMK
+
+I just pushed 2 logfiles generated with:
+
+   parsing -d /dev/ttyUSB0 2>&1 | tee logfile.[osId]
+
+where osId indicated the Linux platform on which it was captured.
+
+I am puzzled by the differences, specifcally, on two separate Fedora 16 systems,one fairly new AMD Athlon(tm) II X2 245 running 12K BogoMIPS, and the other
+older IBM T42 running an single core Intel chip at about 3K BogoMIPS,
+the debug info shows that during each 2 second display of data:
+
+  1 - exactly 2 transmissions (each consisting of on RMC and one GGA
+      sentence) were received from the SKM53 - as expected given the
+	  NMEA_UPDATE_1HZ and NMEA_OUTPUT_RMCGGA settings
+
+  2 - each was properly terminated with a NL character after the checksum
+
+  3 - there were ZERO (0) GPS.parse failures
+
+  4 - there were no nmea sentences with "old" timestamps
+
+In stark contracts, the Ubuntu14.04LTS (on an Intel(R) Core(TM)2 Duo
+CPU T6400  @ 2.00GHz laptop running 8K BogoMIPS) logfile, like the
+Raspbian/wheezy (on a Pi, dmesg claiming only 2 BogoMIPS) and a Linux
+Mint 17 (on an AMD Athlon(tm) 64 X2 Dual Core cpu, running 8755 BogoMIPS)
+logfiles, show a continuous stream of transmissions being received from the
+SKM53 receiver during the same 2 second display interval, many of which:
+
+  1 - do not appear to contain nmea data
+
+  2 - lack a NL immediately following the checksum (which is corrected by
+      a change to GPS::parse() )
+
+  3 - bear an "old" timestamp (i.e. older than the latest timestamp received
+      in a valid nmea sentence)
+
+If anyone has an insight into why old FC16 systems seems to receive
+only 1 transmission of two NMEA sentences per second with NO GPS.parse
+errors, while the data received by the debian-based distros contains
+SO much more "junk" (including some correct sentences), please email me
+at diemkae@gmail.com.  Thanks!
+
+# ---------------------------------------------------------------------
+
 The Adafruit_GPS Library was Originally written to run with Arduino core,
 this has been Ported to run with Raspberry Pi Linux (raspbian wheezy)
 by David Knight (diemkae@gmail.com) and tested with SKM53 GPS receiver
@@ -106,4 +151,4 @@ its voltage switch set to 5v and connected to the SKM53 as follows:
   www.virtuabotix.com/product/versalino-ftdi-usb-serial-programmer-no-cable/
 
 
-#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/README.rpi,v 1.6 2015/01/28 14:53:00 dmk%raspi Exp $"
+#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/README.rpi,v 1.7 2015/01/29 16:15:13 dmk%raspi Exp $"
