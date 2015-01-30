@@ -1,3 +1,17 @@
+20150130 - dmk
+
+I just pushed a fix for the "inter-sentence drek" problem (below).
+
+The difference between the FC16 and debian systems is that, when FC16
+creates /dev/ttyUSB0 it sets stty "raw" mode, and the debian systems
+apparently set stty "cooked" mode, perhaps in the belief that any such
+device is a "terminal".
+
+To fix AdaGPS for debian (all?) distros, I changed GPS.begin() to
+establish the raw mode for the selected device.
+
+Now, there is no evidence of garbage between valid nmea sentences.
+
 20150129 - DMK
 
 I just pushed 2 logfiles generated with:
@@ -151,4 +165,4 @@ its voltage switch set to 5v and connected to the SKM53 as follows:
   www.virtuabotix.com/product/versalino-ftdi-usb-serial-programmer-no-cable/
 
 
-#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/README.rpi,v 1.7 2015/01/29 16:15:13 dmk%raspi Exp $"
+#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/README.rpi,v 1.8 2015/01/30 10:35:46 dmk%leno Exp $"

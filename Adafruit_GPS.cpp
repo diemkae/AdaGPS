@@ -334,7 +334,8 @@ Adafruit_GPS::begin (char *device, uint16_t baud)
 
   //  Using the stty cmd here, to set the baud rate,
   //  is kind of a cheat, but it works ;-)
-  sprintf(cmd,"stty -F %s %d", device, baud);
+  //  Use "raw" mode to eliminate inter-sentence drek that fails in DPS.parse
+  sprintf(cmd,"stty -F %s %d raw", device, baud);
   rc = system(cmd);
   if ( rc != 0 ) {
      fprintf(stderr, "GPS.begin [%s] failed\n", cmd);
@@ -512,4 +513,4 @@ Adafruit_GPS::wakeup (void)
     }
 }
 
-#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/Adafruit_GPS.cpp,v 1.9 2015/01/28 13:49:28 dmk%leno Exp $"
+#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/Adafruit_GPS.cpp,v 1.10 2015/01/30 10:04:14 dmk%leno Exp $"
