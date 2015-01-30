@@ -20,7 +20,8 @@ I just pushed 2 logfiles generated with:
 
 where osId indicated the Linux platform on which it was captured.
 
-I am puzzled by the differences, specifcally, on two separate Fedora 16 systems,one fairly new AMD Athlon(tm) II X2 245 running 12K BogoMIPS, and the other
+I am puzzled by the differences, specifcally, on two separate Fedora 16 systems,
+one fairly new AMD Athlon(tm) II X2 245 running 12K BogoMIPS, and the other, an
 older IBM T42 running an single core Intel chip at about 3K BogoMIPS,
 the debug info shows that during each 2 second display of data:
 
