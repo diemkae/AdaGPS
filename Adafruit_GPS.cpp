@@ -36,6 +36,17 @@ volatile char *lastline;
 volatile boolean recvdflag;
 volatile boolean inStandbyMode;
 
+#ifdef COOKED
+//  if the tty device is running in "cooked" more (as opposed to "raw" mode,
+//  a lot of bogus traffic that gets "read" by fgetc( between valid nmea
+//  sentences.
+//
+//  Since some Linux distros (e.g. debian and debian-based like
+//  Ubuntu and raspbian) create /dev/ttyUSBx devices in cooked mode and some
+//  other distros like Fedora (16, at least) create ttyUSBx devices in raw
+//  mode, GPS.begin() sets the device into raw mode.  If for some reason the device 
+//  cannot be set to or used in raw mode, used #define COOKED to enable this code,
+//  which endeavors to ignore the bogus traffic.
 //
 //  chkHighTime - returns 0 if timestamp >= latest timestamp
 //                        1 if timestamp is "older"
@@ -59,6 +70,7 @@ static int chkHighTime(int newTime) {
 
   return rc;
 }
+#endif
 
 //
 // GPS.parse() - returns true for good parses, false for NG
@@ -72,6 +84,7 @@ Adafruit_GPS::parse (char *nmea)
   boolean rc = false;
   // do checksum check
 
+#ifdef COOKED
   // nmea[] may or may not have a newline after the checksum
   // This occurs frequently with SMK53 GPS receivers
   //    dmk 20150128
@@ -79,6 +92,7 @@ Adafruit_GPS::parse (char *nmea)
 	strcat(nmea,"\n"); // fake having received a NL after checksum
 	if (debug) fprintf(stderr,"NL added after checksum\n");
   }
+#endif
 
   // first look if we even have one
   if (nmea[strlen (nmea) - 4] == '*')
@@ -120,7 +134,9 @@ Adafruit_GPS::parse (char *nmea)
       p = strchr (p, ',') + 1;
       float timef = atof (p);
       GPStime = timef;
+#ifdef COOKED
 	  if (chkHighTime(GPStime)) return false;
+#endif
       hour = GPStime / 10000;
       minute = (GPStime % 10000) / 100;
       seconds = (GPStime % 100);
@@ -185,7 +201,9 @@ Adafruit_GPS::parse (char *nmea)
       p = strchr (p, ',') + 1;
       float timef = atof (p);
       GPStime = timef;
+#ifdef COOKED
 	  if (chkHighTime(GPStime)) return false;
+#endif
       hour = GPStime / 10000;
       minute = (GPStime % 10000) / 100;
       seconds = (GPStime % 100);
@@ -513,4 +531,4 @@ Adafruit_GPS::wakeup (void)
     }
 }
 
-#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/Adafruit_GPS.cpp,v 1.10 2015/01/30 10:04:14 dmk%leno Exp $"
+#ident "$Name:  $ $Header: /projRCS/rpi/AdaGPS/Adafruit_GPS.cpp,v 1.11 2015/01/30 13:35:16 dmk%leno Exp $"
